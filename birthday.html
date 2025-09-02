@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Birthday Surprise</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background: black;
+      color: white;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    h1, h2 {
+      text-align: center;
+      margin: 10px;
+    }
+
+    /* Input box styled like search bar */
+    .search-box {
+      background: rgba(255, 105, 180, 0.15);
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(255, 20, 147, 0.6);
+      text-align: center;
+      margin: 20px;
+    }
+
+    .search-box input {
+      width: 250px;
+      padding: 12px;
+      border: none;
+      border-radius: 20px;
+      outline: none;
+      font-size: 16px;
+      text-align: center;
+      box-shadow: 0 0 10px rgba(255, 20, 147, 0.5);
+    }
+
+    .btn {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background: linear-gradient(45deg, hotpink, deeppink);
+      border: none;
+      border-radius: 20px;
+      color: white;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .btn:hover {
+      transform: scale(1.05);
+    }
+
+    /* Balloons */
+    .balloon {
+      position: absolute;
+      bottom: -150px;
+      width: 60px;
+      height: 80px;
+      background: radial-gradient(circle at 30% 30%, pink, deeppink);
+      border-radius: 50%;
+      animation: floatUp 8s linear infinite;
+    }
+    .balloon:after {
+      content: '';
+      position: absolute;
+      bottom: -40px;
+      left: 50%;
+      width: 2px;
+      height: 40px;
+      background: white;
+    }
+    @keyframes floatUp {
+      0% { transform: translateY(0) scale(1); opacity: 1; }
+      100% { transform: translateY(-120vh) scale(1.1); opacity: 0; }
+    }
+
+    /* Falling binary-style effect */
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: -1;
+    }
+  </style>
+</head>
+<body>
+  <div class="search-box" id="inputSection">
+    <h2>Add a name</h2>
+    <input type="text" id="nameInput" placeholder="Type a name..." />
+    <br>
+    <button class="btn" onclick="showMessage()">Next</button>
+  </div>
+
+  <div id="messageSection" style="display:none;">
+    <h1 id="birthdayMsg"></h1>
+    <button class="btn" onclick="launchConfetti()">Launch Confetti 🎉</button>
+  </div>
+
+  <div id="finalSection" style="display:none;">
+    <h2>🎂 Wishing you a day full of joy, laughter, surprises—and plenty of cake.  
+    May all your wishes come true! 💫</h2>
+  </div>
+
+  <canvas id="binaryCanvas"></canvas>
+
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+  <script>
+    function showMessage() {
+      let name = document.getElementById("nameInput").value || "Friend";
+      document.getElementById("birthdayMsg").innerText = "🎉 Happy Birthday " + name + " 🎉";
+      document.getElementById("inputSection").style.display = "none";
+      document.getElementById("messageSection").style.display = "block";
+    }
+
+    function launchConfetti() {
+      // Balloons
+      for (let i = 0; i < 15; i++) {
+        let balloon = document.createElement("div");
+        balloon.className = "balloon";
+        balloon.style.left = Math.random() * 100 + "vw";
+        balloon.style.animationDuration = 5 + Math.random() * 3 + "s";
+        document.body.appendChild(balloon);
+        setTimeout(() => balloon.remove(), 8000);
+      }
+
+      // Confetti (reduced amount)
+      confetti({
+        particleCount: 80,
+        spread: 70,
+        origin: { y: 0.8 }
+      });
+
+      setTimeout(() => {
+        document.getElementById("messageSection").style.display = "none";
+        document.getElementById("finalSection").style.display = "block";
+      }, 5000);
+    }
+
+    // Binary background effect
+    const canvas = document.getElementById("binaryCanvas");
+    const ctx = canvas.getContext("2d");
+    canvas.height = window.innerHeight;
+    canvas.width = window.innerWidth;
+    const letters = "HAPPYBIRTHDAY".split("");
+    const fontSize = 16;
+    const columns = canvas.width / fontSize;
+    const drops = Array(Math.floor(columns)).fill(1);
+
+    function draw() {
+      ctx.fillStyle = "rgba(0,0,0,0.05)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#ff69b4";
+      ctx.font = fontSize + "px monospace";
+      for (let i = 0; i < drops.length; i++) {
+        const text = letters[Math.floor(Math.random() * letters.length)];
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      }
+    }
+    setInterval(draw, 50);
+  </script>
+</body>
+</html>
